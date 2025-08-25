@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "Node18"   // ⚠️ doit correspondre au nom configuré dans Jenkins (Manage Jenkins > Tools)
-    }
-
     environment {
         APP_NAME   = 'mon-app-js'
         DEPLOY_DIR = '/var/www/html/mon-app'
@@ -60,6 +56,12 @@ pipeline {
                     cp -r dist/* ${DEPLOY_DIR}/
                 '''
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Nettoyage terminé.'
         }
     }
 }
