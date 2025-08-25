@@ -27,11 +27,7 @@ pipeline {
             steps {
                 sh '''
             echo "Running tests..."
-            mkdir -p test-reports
-            npx jest --ci --reporters=default \
-            --reporters="jest-junit" \
-            --outputDirectory=test-reports \
-            --outputName=test-results.xml || true
+            npx jest --ci || true
             ls -l test-reports
         '''
             }
