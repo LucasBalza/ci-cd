@@ -5,14 +5,17 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest",
+    "test": "jest --ci --reporters=default --reporters=jest-junit",
     "build": "npm run copy-files",
-    "copy-files": "mkdir -p dist && cp -r src/* dist/",
-    "clean": "rm -rf dist node_modules"
+    "copy-files": "if not exist dist mkdir dist && xcopy src\\* dist\\ /E /I /Y",
+    "clean": "rmdir /S /Q dist && rmdir /S /Q node_modules"
   },
   "devDependencies": {
     "express": "^4.18.0",
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0"
+  },
+  "jest-junit": {
+    "output": "test-results.xml"
   }
 }
