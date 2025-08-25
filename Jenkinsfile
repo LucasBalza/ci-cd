@@ -45,7 +45,6 @@ pipeline {
         }
 
         stage('Deploy to Production') {
-            when { branch 'main' }
             steps {
                 sh '''
                     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -61,13 +60,11 @@ pipeline {
         }
 
         stage('Run Application') {
-            when { branch 'main' }
             steps {
                 sh '''
-            echo "Lancement de l'application..."
             cd $DEPLOY_DIR
-            npm install --production
-            node index.js
+            nohup node index.js > app.log 2>&1 &
+            echo "Application lancée en arrière-plan, logs dans app.log"
         '''
             }
         }
