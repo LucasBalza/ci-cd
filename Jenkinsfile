@@ -44,18 +44,23 @@ pipeline {
             }
         }
 
+        environment {
+            APP_NAME   = 'mon-app-js'
+            DEPLOY_DIR = "${WORKSPACE}/deploy/mon-app"
+        }
+
         stage('Deploy to Production') {
             steps {
                 sh '''
-                    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+            TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-                    if [ -d "${DEPLOY_DIR}" ]; then
-                        cp -r "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_$TIMESTAMP"
-                    fi
+            if [ -d "${DEPLOY_DIR}" ]; then
+                cp -r "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_$TIMESTAMP"
+            fi
 
-                    mkdir -p "${DEPLOY_DIR}"
-                    cp -r dist/* "${DEPLOY_DIR}/"
-                '''
+            mkdir -p "${DEPLOY_DIR}"
+            cp -r dist/* "${DEPLOY_DIR}/"
+        '''
             }
         }
 
@@ -63,6 +68,7 @@ pipeline {
             steps {
                 sh '''
             cd $DEPLOY_DIR
+            npm install --production
             nohup node index.js > app.log 2>&1 &
             echo "Application lancée en arrière-plan, logs dans app.log"
         '''
