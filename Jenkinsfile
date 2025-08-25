@@ -25,7 +25,11 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'npx jest --ci --reporters=default --reporters=jest-junit || true'
+                // On définit le fichier de sortie pour Jest JUnit
+                sh '''
+            npx jest --ci --reporters=default --reporters="jest-junit" \
+            --outputFile=test-results.xml || true
+        '''
             }
             post {
                 always {
@@ -45,7 +49,7 @@ pipeline {
             steps {
                 sh '''
                     TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-                    
+
                     if [ -d "${DEPLOY_DIR}" ]; then
                         cp -r "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_$TIMESTAMP"
                     fi
