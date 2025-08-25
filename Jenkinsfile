@@ -42,11 +42,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    echo "Structure du projet avant build :"
-                    ls -R
                     npm run build
-                    echo "Structure du projet après build :"
-                    ls -R
                 '''
             }
         }
