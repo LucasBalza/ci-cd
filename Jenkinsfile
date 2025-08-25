@@ -25,11 +25,10 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat 'npm test || exit 0'
+                bat 'npx jest --ci --reporters=default --reporters=jest-junit || exit 0'
             }
             post {
                 always {
-                    // On archive le rapport JUnit généré par jest-junit
                     junit 'test-results.xml'
                 }
             }
