@@ -59,6 +59,18 @@ pipeline {
                 '''
             }
         }
+
+        stage('Run Application') {
+            when { branch 'main' }
+            steps {
+                sh '''
+            echo "Lancement de l'application..."
+            cd $DEPLOY_DIR
+            npm install --production
+            node index.js
+        '''
+            }
+        }
     }
 
     post {
