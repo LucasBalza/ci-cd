@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME   = 'mon-app-js'
-        DEPLOY_DIR = '/deploy/mon-app' // chemin Linux dans le container
+        DEPLOY_DIR = "${WORKSPACE}/deploy/mon-app"
     }
 
     stages {
@@ -42,11 +42,6 @@ pipeline {
             steps {
                 sh 'npm run build'
             }
-        }
-
-        environment {
-            APP_NAME   = 'mon-app-js'
-            DEPLOY_DIR = "${WORKSPACE}/deploy/mon-app"
         }
 
         stage('Deploy to Production') {
