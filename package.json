@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "jest --ci --reporters=default --reporters=jest-junit",
     "build": "npm run copy-files",
-    "copy-files": "mkdir -p dist && cp -r mon-app-js/src/* dist/",
+    "copy-files": "mkdir -p dist && cp -r src/* dist/ && cp src/app.js dist/index.js",
     "clean": "rmdir /S /Q dist && rmdir /S /Q node_modules"
   },
   "devDependencies": {
