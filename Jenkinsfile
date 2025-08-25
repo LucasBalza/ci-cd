@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         APP_NAME   = 'mon-app-js'
-        DEPLOY_DIR = "${WORKSPACE}/deploy/mon-app"
+        IMAGE_NAME = 'mon-app-js-image'
+        CONTAINER_NAME = 'mon-app-js-container'
     }
 
     stages {
@@ -26,10 +27,10 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-            echo "Running tests..."
-            npx jest --ci || true
-            ls -l test-reports
-        '''
+                    echo "Running tests..."
+                    npx jest --ci || true
+                    ls -l test-reports
+                '''
             }
             post {
                 always {
@@ -44,36 +45,43 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production') {
+        stage('Prepare Dockerfile') {
             steps {
                 sh '''
-            TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-
-            if [ -d "${DEPLOY_DIR}" ]; then
-                cp -r "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_$TIMESTAMP"
-            fi
-
-            mkdir -p "${DEPLOY_DIR}"
-            cp -r dist/* "${DEPLOY_DIR}/"
-        '''
+                    cat > Dockerfile <<EOF
+                    FROM node:22-alpine
+                    WORKDIR /app
+                    COPY package*.json ./
+                    RUN npm install --production
+                    COPY dist/ ./dist/
+                    EXPOSE 3000
+                    CMD ["node", "dist/index.js"]
+                    EOF
+                '''
             }
         }
 
-        stage('Run Application') {
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME} ."
+            }
+        }
+
+        stage('Docker Run') {
             steps {
                 sh '''
-            cd $DEPLOY_DIR
-            npm install --production
-            nohup node index.js > app.log 2>&1 &
-            echo "Application lancée en arrière-plan, logs dans app.log"
-        '''
+                    # Supprime le container existant si présent
+                    docker rm -f ${CONTAINER_NAME} || true
+                    # Lance le container
+                    docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
+                '''
             }
         }
     }
 
     post {
         always {
-            echo 'Nettoyage terminé.'
+            echo 'Pipeline terminé.'
         }
     }
 }
