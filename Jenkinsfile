@@ -29,7 +29,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'npm test || true'
+                bat 'npm test || true'
             }
             post {
                 always {
