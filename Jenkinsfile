@@ -55,8 +55,8 @@ FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
-COPY server.js ./
-COPY src/ .mon-app-js/src/
+COPY mon-app-js/server.js ./
+COPY mon-app-js/src/ ./src/
 EXPOSE 3000
 CMD ["node", "server.js"]
 EOF
