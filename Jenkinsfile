@@ -15,7 +15,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
+                bat '''
                     node --version
                     npm --version
                     if [ -f package-lock.json ]; then
@@ -40,7 +40,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                bat 'npm run build'
             }
         }
 
