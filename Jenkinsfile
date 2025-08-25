@@ -63,18 +63,23 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh "docker build -t ${IMAGE_NAME} ."
+                sh '''
+            # Utiliser le Docker TCP exposé par Docker Desktop
+            export DOCKER_HOST=tcp://host.docker.internal:2375
+            docker build -t ${IMAGE_NAME} .
+        '''
             }
         }
 
         stage('Docker Run') {
             steps {
                 sh '''
-                    # Supprime le container existant si présent
-                    docker rm -f ${CONTAINER_NAME} || true
-                    # Lance le container
-                    docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
-                '''
+            export DOCKER_HOST=tcp://host.docker.internal:2375
+            # Supprime le container existant si présent
+            docker rm -f ${CONTAINER_NAME} || true
+            # Lance le container
+            docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
+        '''
             }
         }
     }
