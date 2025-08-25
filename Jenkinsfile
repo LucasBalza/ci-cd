@@ -55,7 +55,7 @@ COPY package*.json ./
 RUN npm install --production
 COPY dist/ ./dist/
 EXPOSE 3000
-CMD ["node", "dist/mon-app-js/app.js"]
+CMD ["node", "dist/mon-app-js/src/app.js"]
 EOF
         '''
             }
