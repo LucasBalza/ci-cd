@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME   = 'mon-app-js'
-        DEPLOY_DIR = 'C:\\deploy\\mon-app'  // chemin Windows
+        DEPLOY_DIR = 'C:\\deploy\\mon-app' // modifie selon ton dossier Windows
     }
 
     stages {
@@ -18,23 +18,18 @@ pipeline {
                 bat '''
                     node --version
                     npm --version
-                    if exist package-lock.json (
-                        npm ci
-                    ) else (
-                        npm install
-                    )
+                    npm install
                 '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                // Jest doit être installé localement ou globalement
                 bat 'npm test || exit 0'
             }
             post {
                 always {
-                    // Assurez-vous que Jest génère un fichier test-results.xml via jest-junit
+                    // On archive le rapport JUnit généré par jest-junit
                     junit 'test-results.xml'
                 }
             }
@@ -50,15 +45,12 @@ pipeline {
             when { branch 'main' }
             steps {
                 bat """
-                    REM Sauvegarde de l'ancienne version si elle existe
                     if exist "${DEPLOY_DIR}" (
-                        xcopy "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_%DATE:~6,4%%DATE:~3,2%%DATE:~0,2%_%TIME:~0,2%%TIME:~3,2%%TIME:~6,2%" /E /I /Y
+                        set dt=%date:~-4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+                        xcopy "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_%dt%" /E /I /Y
                     )
 
-                    REM Création du dossier de déploiement
                     if not exist "${DEPLOY_DIR}" mkdir "${DEPLOY_DIR}"
-
-                    REM Copie des fichiers build
                     xcopy dist\\* "${DEPLOY_DIR}\\" /E /I /Y
                 """
             }
