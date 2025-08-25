@@ -25,15 +25,19 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                // On définit le fichier de sortie pour Jest JUnit
                 sh '''
-            npx jest --ci --reporters=default --reporters="jest-junit" \
-            --outputFile=test-results.xml || true
+            echo "Running tests..."
+            mkdir -p test-reports
+            npx jest --ci --reporters=default \
+            --reporters="jest-junit" \
+            --outputDirectory=test-reports \
+            --outputName=test-results.xml || true
+            ls -l test-reports
         '''
             }
             post {
                 always {
-                    junit 'test-results.xml'
+                    junit 'test-reports/test-results.xml'
                 }
             }
         }
