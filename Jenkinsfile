@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         APP_NAME   = 'mon-app-js'
-        DEPLOY_DIR = 'C:\\deploy\\mon-app' // modifie selon ton dossier Windows
+        DEPLOY_DIR = '/deploy/mon-app' // chemin Linux dans le container
     }
 
     stages {
@@ -15,7 +15,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat '''
+                sh '''
                     node --version
                     npm --version
                     npm install
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat 'npx jest --ci --reporters=default --reporters=jest-junit || exit 0'
+                sh 'npx jest --ci --reporters=default --reporters=jest-junit || true'
             }
             post {
                 always {
@@ -36,22 +36,23 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'npm run build'
+                sh 'npm run build'
             }
         }
 
         stage('Deploy to Production') {
             when { branch 'main' }
             steps {
-                bat """
-                    if exist "${DEPLOY_DIR}" (
-                        set dt=%date:~-4%%date:~3,2%%date:~0,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-                        xcopy "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_%dt%" /E /I /Y
-                    )
+                sh '''
+                    TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                    
+                    if [ -d "${DEPLOY_DIR}" ]; then
+                        cp -r "${DEPLOY_DIR}" "${DEPLOY_DIR}_backup_$TIMESTAMP"
+                    fi
 
-                    if not exist "${DEPLOY_DIR}" mkdir "${DEPLOY_DIR}"
-                    xcopy dist\\* "${DEPLOY_DIR}\\" /E /I /Y
-                """
+                    mkdir -p "${DEPLOY_DIR}"
+                    cp -r dist/* "${DEPLOY_DIR}/"
+                '''
             }
         }
     }
