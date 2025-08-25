@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME   = 'mon-app-js'
-        IMAGE_NAME = 'mon-app-js-image'
+        APP_NAME       = 'mon-app-js'
+        IMAGE_NAME     = 'mon-app-js-image'
         CONTAINER_NAME = 'mon-app-js-container'
     }
 
@@ -41,14 +41,20 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    echo "Structure du projet avant build :"
+                    ls -R
+                    npm run build
+                    echo "Structure du projet après build :"
+                    ls -R
+                '''
             }
         }
 
         stage('Prepare Dockerfile') {
             steps {
                 sh '''
-cat > Dockerfile <<EOF
+cat <<'EOF' > Dockerfile
 FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
@@ -57,29 +63,26 @@ COPY dist/ ./dist/
 EXPOSE 3000
 CMD ["node", "dist/index.js"]
 EOF
-        '''
+                '''
             }
         }
 
         stage('Docker Build') {
             steps {
                 sh '''
-            # Utiliser le Docker TCP exposé par Docker Desktop
-            export DOCKER_HOST=tcp://host.docker.internal:2375
-            docker build -t ${IMAGE_NAME} .
-        '''
+                    export DOCKER_HOST=tcp://host.docker.internal:2375
+                    docker build -t ${IMAGE_NAME} .
+                '''
             }
         }
 
         stage('Docker Run') {
             steps {
                 sh '''
-            export DOCKER_HOST=tcp://host.docker.internal:2375
-            # Supprime le container existant si présent
-            docker rm -f ${CONTAINER_NAME} || true
-            # Lance le container
-            docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
-        '''
+                    export DOCKER_HOST=tcp://host.docker.internal:2375
+                    docker rm -f ${CONTAINER_NAME} || true
+                    docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
+                '''
             }
         }
     }
