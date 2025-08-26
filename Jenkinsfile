@@ -110,7 +110,7 @@ pipeline {
                     sleep 5
                     
                     echo "🔍 Test de l'endpoint /health sur le port ${STAGING_PORT} :"
-                    if curl -f http://localhost:${STAGING_PORT}/health; then
+                    if curl -f http://host.docker.internal:${STAGING_PORT}/health; then
                         echo "✅ Endpoint /health accessible"
                     else
                         echo "❌ L'endpoint /health n'est pas accessible"
@@ -120,7 +120,7 @@ pipeline {
                     fi
                     
                     echo "🔍 Test de la page d'accueil sur le port ${STAGING_PORT} :"
-                    if curl -f http://localhost:${STAGING_PORT}/; then
+                    if curl -f http://host.docker.internal:${STAGING_PORT}/; then
                         echo "✅ Page d'accueil accessible"
                     else
                         echo "❌ La page d'accueil n'est pas accessible"
@@ -130,7 +130,7 @@ pipeline {
                     echo "📊 Tests de charge basiques..."
                     success_count=0
                     for i in 1 2 3 4 5; do
-                        if curl -s http://localhost:${STAGING_PORT}/health > /dev/null; then
+                        if curl -s http://host.docker.internal:${STAGING_PORT}/health > /dev/null; then
                             echo "✅ Requête $i OK"
                             ((success_count++))
                         else
@@ -174,7 +174,7 @@ pipeline {
                     sleep 5
                     
                     echo "🔍 Test de l'endpoint /health sur le port ${PROD_PORT} :"
-                    if curl -f http://localhost:${PROD_PORT}/health; then
+                    if curl -f http://host.docker.internal:${PROD_PORT}/health; then
                         echo "✅ Endpoint /health accessible"
                     else
                         echo "❌ L'endpoint /health n'est pas accessible"
@@ -184,7 +184,7 @@ pipeline {
                     fi
                     
                     echo "🔍 Test de la page d'accueil sur le port ${PROD_PORT} :"
-                    if curl -f http://localhost:${PROD_PORT}/; then
+                    if curl -f http://host.docker.internal:${PROD_PORT}/; then
                         echo "✅ Page d'accueil accessible"
                     else
                         echo "❌ La page d'accueil n'est pas accessible"
@@ -194,7 +194,7 @@ pipeline {
                     echo "📊 Tests de charge basiques..."
                     success_count=0
                     for i in 1 2 3 4 5; do
-                        if curl -s http://localhost:${PROD_PORT}/health > /dev/null; then
+                        if curl -s http://host.docker.internal:${PROD_PORT}/health > /dev/null; then
                             echo "✅ Requête $i OK"
                             ((success_count++))
                         else

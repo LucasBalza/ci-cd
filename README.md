@@ -55,6 +55,8 @@ L'application expose deux environnements :
 - `http://localhost:3000/` : Page d'accueil
 - `http://localhost:3000/health` : Endpoint de santé
 
+**Note** : Dans le pipeline Jenkins, les tests utilisent `host.docker.internal` pour accéder aux conteneurs depuis le conteneur Jenkins.
+
 ### Test manuel
 ```bash
 # Test des deux environnements
