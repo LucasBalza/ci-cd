@@ -76,11 +76,11 @@ pipeline {
             steps {
                 sh '''
                     export DOCKER_HOST=tcp://host.docker.internal:2375
-                    echo "🧹 Nettoyage des déploiements précédents..."
+                    echo "Nettoyage des déploiements précédents..."
                     docker rm -f ${STAGING_CONTAINER} || true
                     docker rm -f ${PROD_CONTAINER} || true
                     docker rm -f mon-app-js-container || true
-                    echo "✅ Nettoyage terminé"
+                    echo "Nettoyage terminé"
                 '''
             }
         }
@@ -89,13 +89,13 @@ pipeline {
             steps {
                 sh '''
                     export DOCKER_HOST=tcp://host.docker.internal:2375
-                    echo "🚀 Déploiement en staging sur le port ${STAGING_PORT}..."
+                    echo "Déploiement en staging sur le port ${STAGING_PORT}..."
                     docker run -d --name ${STAGING_CONTAINER} -p ${STAGING_PORT}:3000 -e NODE_ENV=staging ${IMAGE_NAME}
-                    echo "⏳ Attente du démarrage du conteneur staging..."
+                    echo "Attente du démarrage du conteneur staging..."
                     sleep 15
-                    echo "📊 Vérification du statut du conteneur staging :"
+                    echo "Vérification du statut du conteneur staging :"
                     docker ps | grep ${STAGING_CONTAINER}
-                    echo "📋 Logs du conteneur staging :"
+                    echo "Logs du conteneur staging :"
                     docker logs ${STAGING_CONTAINER} --tail 10
                 '''
             }
@@ -104,47 +104,47 @@ pipeline {
         stage('Test Staging') {
             steps {
                 sh '''
-                    echo "🧪 Tests de validation de la staging..."
+                    echo "Tests de validation de la staging..."
                     
                     # Attendre un peu plus pour s'assurer que l'app est prête
                     sleep 5
                     
-                    echo "🔍 Test de l'endpoint /health sur le port ${STAGING_PORT} :"
+                    echo "Test de l'endpoint /health sur le port ${STAGING_PORT} :"
                     if curl -f http://host.docker.internal:${STAGING_PORT}/health; then
-                        echo "✅ Endpoint /health accessible"
+                        echo "Endpoint /health accessible"
                     else
-                        echo "❌ L'endpoint /health n'est pas accessible"
-                        echo "📋 Vérification des logs du conteneur :"
+                        echo "L'endpoint /health n'est pas accessible"
+                        echo "Vérification des logs du conteneur :"
                         docker logs ${STAGING_CONTAINER} --tail 20
                         exit 1
                     fi
                     
-                    echo "🔍 Test de la page d'accueil sur le port ${STAGING_PORT} :"
+                    echo "Test de la page d'accueil sur le port ${STAGING_PORT} :"
                     if curl -f http://host.docker.internal:${STAGING_PORT}/; then
-                        echo "✅ Page d'accueil accessible"
+                        echo "Page d'accueil accessible"
                     else
-                        echo "❌ La page d'accueil n'est pas accessible"
+                        echo "La page d'accueil n'est pas accessible"
                         exit 1
                     fi
                     
-                    echo "📊 Tests de charge basiques..."
+                    echo "Tests de charge basiques..."
                     success_count=0
                     for i in 1 2 3 4 5; do
                         if curl -s http://host.docker.internal:${STAGING_PORT}/health > /dev/null; then
-                            echo "✅ Requête $i OK"
+                            echo "Requête $i OK"
                             success_count=$((success_count + 1))
                         else
-                            echo "❌ Requête $i échouée"
+                            echo "Requête $i échouée"
                         fi
                     done
                     
-                    echo "📈 Résultat des tests de charge : $success_count/5 succès"
+                    echo "Résultat des tests de charge : $success_count/5 succès"
                     if [ $success_count -lt 3 ]; then
-                        echo "❌ Trop d'échecs dans les tests de charge"
+                        echo "Trop d'échecs dans les tests de charge"
                         exit 1
                     fi
                     
-                    echo "✅ Validation de la staging terminée avec succès."
+                    echo "Validation de la staging terminée avec succès."
                 '''
             }
         }
@@ -153,13 +153,13 @@ pipeline {
             steps {
                 sh '''
                     export DOCKER_HOST=tcp://host.docker.internal:2375
-                    echo "🚀 Déploiement en production sur le port ${PROD_PORT}..."
+                    echo "Déploiement en production sur le port ${PROD_PORT}..."
                     docker run -d --name ${PROD_CONTAINER} -p ${PROD_PORT}:3000 -e NODE_ENV=production ${IMAGE_NAME}
-                    echo "⏳ Attente du démarrage du conteneur production..."
+                    echo "Attente du démarrage du conteneur production..."
                     sleep 15
-                    echo "📊 Vérification du statut du conteneur production :"
+                    echo "Vérification du statut du conteneur production :"
                     docker ps | grep ${PROD_CONTAINER}
-                    echo "📋 Logs du conteneur production :"
+                    echo "Logs du conteneur production :"
                     docker logs ${PROD_CONTAINER} --tail 10
                 '''
             }
@@ -168,48 +168,48 @@ pipeline {
         stage('Test Production') {
             steps {
                 sh '''
-                    echo "🧪 Tests de validation de la production..."
+                    echo "Tests de validation de la production..."
                     
                     # Attendre un peu plus pour s'assurer que l'app est prête
                     sleep 5
                     
-                    echo "🔍 Test de l'endpoint /health sur le port ${PROD_PORT} :"
+                    echo "Test de l'endpoint /health sur le port ${PROD_PORT} :"
                     if curl -f http://host.docker.internal:${PROD_PORT}/health; then
-                        echo "✅ Endpoint /health accessible"
+                        echo "Endpoint /health accessible"
                     else
-                        echo "❌ L'endpoint /health n'est pas accessible"
-                        echo "📋 Vérification des logs du conteneur :"
+                        echo "L'endpoint /health n'est pas accessible"
+                        echo "Vérification des logs du conteneur :"
                         docker logs ${PROD_CONTAINER} --tail 20
                         exit 1
                     fi
                     
-                    echo "🔍 Test de la page d'accueil sur le port ${PROD_PORT} :"
+                    echo "Test de la page d'accueil sur le port ${PROD_PORT} :"
                     if curl -f http://host.docker.internal:${PROD_PORT}/; then
-                        echo "✅ Page d'accueil accessible"
+                        echo "Page d'accueil accessible"
                     else
-                        echo "❌ La page d'accueil n'est pas accessible"
+                        echo "La page d'accueil n'est pas accessible"
                         exit 1
                     fi
                     
-                    echo "📊 Tests de charge basiques..."
+                    echo "Tests de charge basiques..."
                     success_count=0
                     for i in 1 2 3 4 5; do
                         if curl -s http://host.docker.internal:${PROD_PORT}/health > /dev/null; then
-                            echo "✅ Requête $i OK"
+                            echo "Requête $i OK"
                             success_count=$((success_count + 1))
                         else
-                            echo "❌ Requête $i échouée"
+                            echo "Requête $i échouée"
                         fi
                     done
                     
-                    echo "📈 Résultat des tests de charge : $success_count/5 succès"
+                    echo "Résultat des tests de charge : $success_count/5 succès"
                     if [ $success_count -lt 3 ]; then
-                        echo "❌ Trop d'échecs dans les tests de charge"
+                        echo "Trop d'échecs dans les tests de charge"
                         exit 1
                     fi
                     
-                    echo "🎉 Déploiement production réussi !"
-                    echo "📊 Résumé des environnements :"
+                    echo "Déploiement production réussi !"
+                    echo "Résumé des environnements :"
                     echo "   - Staging: http://localhost:${STAGING_PORT}"
                     echo "   - Production: http://localhost:${PROD_PORT}"
                 '''
@@ -223,19 +223,19 @@ pipeline {
         }
         success {
             sh '''
-                echo "🎉 Pipeline réussi !"
-                echo "📊 Résumé des déploiements :"
+                echo "Pipeline réussi !"
+                echo "Résumé des déploiements :"
                 echo "   - Staging: http://localhost:${STAGING_PORT}"
                 echo "   - Production: http://localhost:${PROD_PORT}"
                 echo ""
-                echo "🔍 Pour tester manuellement :"
+                echo "Pour tester manuellement :"
                 echo "   ./test-app.sh ${STAGING_PORT} ${PROD_PORT}"
             '''
         }
         failure {
             sh '''
-                echo "❌ Pipeline échoué !"
-                echo "🧹 Nettoyage des conteneurs..."
+                echo "Pipeline échoué !"
+                echo "Nettoyage des conteneurs..."
                 export DOCKER_HOST=tcp://host.docker.internal:2375
                 docker rm -f ${STAGING_CONTAINER} || true
                 docker rm -f ${PROD_CONTAINER} || true
