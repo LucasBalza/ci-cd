@@ -132,7 +132,7 @@ pipeline {
                     for i in 1 2 3 4 5; do
                         if curl -s http://host.docker.internal:${STAGING_PORT}/health > /dev/null; then
                             echo "✅ Requête $i OK"
-                            ((success_count++))
+                            success_count=$((success_count + 1))
                         else
                             echo "❌ Requête $i échouée"
                         fi
@@ -196,7 +196,7 @@ pipeline {
                     for i in 1 2 3 4 5; do
                         if curl -s http://host.docker.internal:${PROD_PORT}/health > /dev/null; then
                             echo "✅ Requête $i OK"
-                            ((success_count++))
+                            success_count=$((success_count + 1))
                         else
                             echo "❌ Requête $i échouée"
                         fi
