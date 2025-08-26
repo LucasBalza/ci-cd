@@ -2,9 +2,12 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME       = 'mon-app-js'
-        IMAGE_NAME     = 'mon-app-js-image'
-        CONTAINER_NAME = 'mon-app-js-container'
+        APP_NAME           = 'mon-app-js'
+        IMAGE_NAME         = 'mon-app-js-image'
+        STAGING_CONTAINER  = 'mon-app-js-staging'
+        PROD_CONTAINER     = 'mon-app-js-production'
+        STAGING_PORT       = '3001'
+        PROD_PORT          = '3000'
     }
 
     stages {
@@ -19,7 +22,9 @@ pipeline {
                 sh '''
                     node --version
                     npm --version
-                    npm install
+                    npm ci
+                    echo "Dépendances installées :"
+                    npm list --depth=0
                 '''
             }
         }
@@ -50,16 +55,10 @@ pipeline {
         stage('Prepare Dockerfile') {
             steps {
                 sh '''
-cat <<'EOF' > Dockerfile
-FROM node:22-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
-COPY mon-app-js/server.js ./
-COPY mon-app-js/src/ ./src/
-EXPOSE 3000
-CMD ["node", "server.js"]
-EOF
+                    echo "Vérification du Dockerfile..."
+                    cat Dockerfile
+                    echo "Vérification des fichiers package.json..."
+                    cat package.json
                 '''
             }
         }
@@ -73,12 +72,70 @@ EOF
             }
         }
 
-        stage('Docker Run') {
+        stage('Deploy Staging') {
             steps {
                 sh '''
                     export DOCKER_HOST=tcp://host.docker.internal:2375
-                    docker rm -f ${CONTAINER_NAME} || true
-                    docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}
+                    echo "Déploiement en staging sur le port ${STAGING_PORT}..."
+                    docker rm -f ${STAGING_CONTAINER} || true
+                    docker run -d --name ${STAGING_CONTAINER} -p ${STAGING_PORT}:3000 -e NODE_ENV=staging ${IMAGE_NAME}
+                    echo "Attente du démarrage du conteneur staging..."
+                    sleep 10
+                    echo "Vérification du statut du conteneur staging :"
+                    docker ps | grep ${STAGING_CONTAINER}
+                '''
+            }
+        }
+
+        stage('Test Staging') {
+            steps {
+                sh '''
+                    echo "Tests de validation de la staging..."
+                    echo "Test de l'endpoint /health sur le port ${STAGING_PORT} :"
+                    curl -f http://localhost:${STAGING_PORT}/health || echo "❌ L'endpoint /health n'est pas accessible"
+                    
+                    echo "Test de la page d'accueil sur le port ${STAGING_PORT} :"
+                    curl -f http://localhost:${STAGING_PORT}/ || echo "❌ La page d'accueil n'est pas accessible"
+                    
+                    echo "Tests de charge basiques..."
+                    for i in {1..5}; do
+                        curl -s http://localhost:${STAGING_PORT}/health > /dev/null && echo "✅ Requête $i OK" || echo "❌ Requête $i échouée"
+                    done
+                    
+                    echo "Validation de la staging terminée."
+                '''
+            }
+        }
+
+        stage('Deploy Production') {
+            steps {
+                sh '''
+                    export DOCKER_HOST=tcp://host.docker.internal:2375
+                    echo "Déploiement en production sur le port ${PROD_PORT}..."
+                    docker rm -f ${PROD_CONTAINER} || true
+                    docker run -d --name ${PROD_CONTAINER} -p ${PROD_PORT}:3000 -e NODE_ENV=production ${IMAGE_NAME}
+                    echo "Attente du démarrage du conteneur production..."
+                    sleep 10
+                    echo "Vérification du statut du conteneur production :"
+                    docker ps | grep ${PROD_CONTAINER}
+                '''
+            }
+        }
+
+        stage('Test Production') {
+            steps {
+                sh '''
+                    echo "Tests de validation de la production..."
+                    echo "Test de l'endpoint /health sur le port ${PROD_PORT} :"
+                    curl -f http://localhost:${PROD_PORT}/health || echo "❌ L'endpoint /health n'est pas accessible"
+                    
+                    echo "Test de la page d'accueil sur le port ${PROD_PORT} :"
+                    curl -f http://localhost:${PROD_PORT}/ || echo "❌ La page d'accueil n'est pas accessible"
+                    
+                    echo "✅ Déploiement production réussi !"
+                    echo "📊 Résumé :"
+                    echo "   - Staging: http://localhost:${STAGING_PORT}"
+                    echo "   - Production: http://localhost:${PROD_PORT}"
                 '''
             }
         }
@@ -87,6 +144,26 @@ EOF
     post {
         always {
             echo 'Pipeline terminé.'
+        }
+        success {
+            sh '''
+                echo "🎉 Pipeline réussi !"
+                echo "📊 Résumé des déploiements :"
+                echo "   - Staging: http://localhost:${STAGING_PORT}"
+                echo "   - Production: http://localhost:${PROD_PORT}"
+                echo ""
+                echo "🔍 Pour tester manuellement :"
+                echo "   ./test-app.sh ${STAGING_PORT} ${PROD_PORT}"
+            '''
+        }
+        failure {
+            sh '''
+                echo "❌ Pipeline échoué !"
+                echo "🧹 Nettoyage des conteneurs..."
+                export DOCKER_HOST=tcp://host.docker.internal:2375
+                docker rm -f ${STAGING_CONTAINER} || true
+                docker rm -f ${PROD_CONTAINER} || true
+            '''
         }
     }
 }
