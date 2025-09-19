@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="5" failures="0" errors="0" time="0.297">
+  <testsuite name="Tests de la calculatrice" errors="0" failures="0" skipped="0" timestamp="2025-09-19T14:44:31" time="0.235" tests="5">
+    <testcase classname="Tests de la calculatrice Addition de deux nombres" name="Tests de la calculatrice Addition de deux nombres" time="0.001">
+    </testcase>
+    <testcase classname="Tests de la calculatrice Soustraction de deux nombres" name="Tests de la calculatrice Soustraction de deux nombres" time="0">
+    </testcase>
+    <testcase classname="Tests de la calculatrice Multiplication de deux nombres" name="Tests de la calculatrice Multiplication de deux nombres" time="0">
+    </testcase>
+    <testcase classname="Tests de la calculatrice Division de deux nombres" name="Tests de la calculatrice Division de deux nombres" time="0.001">
+    </testcase>
+    <testcase classname="Tests de la calculatrice Validation des nombres" name="Tests de la calculatrice Validation des nombres" time="0.001">
+    </testcase>
+  </testsuite>
+</testsuites>
