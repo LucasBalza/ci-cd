@@ -287,27 +287,8 @@ Consultez `DOCUMENTATION_AVEC_IMAGES.md` pour une documentation détaillée avec
 
 ### Installation et Démarrage de Jenkins
 
-#### 1. Créer le fichier docker-compose.yml
-```yaml
-version: '3.8'
-services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-    environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-    restart: unless-stopped
 
-volumes:
-  jenkins_home:
-```
-
-#### 2. Démarrer Jenkins
+#### 1. Démarrer Jenkins
 ```bash
 # Arrêter Jenkins s'il existe
 docker stop jenkins 2>/dev/null || true
