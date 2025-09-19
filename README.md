@@ -1,8 +1,8 @@
-# ��� Projet Jenkins - CI/CD avec Docker
+# Projet Jenkins - CI/CD avec Docker
 
 Ce projet démontre une **pipeline CI/CD complète** utilisant Jenkins pour déployer une application JavaScript dans des conteneurs Docker. Il implémente une stratégie de déploiement **blue-green** avec validation automatique.
 
-## ���️ Architecture du Projet
+##  Architecture du Projet
 
 ### Vue d'ensemble
 ```
@@ -81,7 +81,7 @@ graph LR
 10. **Deploy Production** : Déploiement sur le port 3000 avec `NODE_ENV=production`
 11. **Test Production** : Validation complète de l'environnement production
 
-## ��� Configuration Docker
+## Configuration Docker
 
 ### Dockerfile
 ```dockerfile
@@ -100,7 +100,7 @@ CMD ["node", "server.js"]             # Commande de démarrage
 - **Tests → Application** : `http://host.docker.internal:PORT`
 - **Utilisateur → Application** : `http://localhost:PORT`
 
-## ��� Tests et Validation
+## Tests et Validation
 
 ### Tests Automatiques
 1. **Tests Unitaires** : Jest avec rapports JUnit
@@ -121,7 +121,7 @@ CMD ["node", "server.js"]             # Commande de démarrage
   }
   ```
 
-## ��� Démarrage du Projet
+## Démarrage du Projet
 
 ### Prérequis
 - Docker installé et en cours d'exécution
@@ -171,7 +171,7 @@ curl http://localhost:3001/health  # Staging
 curl http://localhost:3000/health  # Production
 ```
 
-## ��� Environnements
+## Environnements
 
 ### Staging (Pré-production)
 - **URL** : `http://localhost:3001`
@@ -185,7 +185,7 @@ curl http://localhost:3000/health  # Production
 - **Environnement** : `NODE_ENV=production`
 - **Usage** : Application finale pour les utilisateurs
 
-## ��� Commandes Utiles
+## Commandes Utiles
 
 ### Gestion des Conteneurs
 ```bash
@@ -221,7 +221,7 @@ npm run build
 npm run clean
 ```
 
-## ��� Monitoring et Logs
+## Monitoring et Logs
 
 ### Logs Jenkins
 - **Pipeline** : Logs détaillés de chaque étape
@@ -233,7 +233,7 @@ npm run clean
 - **Requêtes** : Logs des accès aux endpoints
 - **Erreurs** : Gestion des erreurs et stack traces
 
-## ���️ Dépannage
+##  Dépannage
 
 ### Problèmes Courants
 1. **Docker non accessible** : Vérifier `DOCKER_HOST`
@@ -256,7 +256,7 @@ netstat -tulpn | grep :300
 curl -v http://localhost:3001/health
 ```
 
-## ��� Points Clés du Projet
+## Points Clés du Projet
 
 - ✅ **CI/CD Complète** : Pipeline Jenkins automatisé
 - ✅ **Containerisation** : Docker pour la portabilité
@@ -268,7 +268,7 @@ curl -v http://localhost:3001/health
 
 Ce projet démontre une maîtrise complète des technologies DevOps modernes et des bonnes pratiques de déploiement continu.
 
-## ��� Documentation avec Images
+## Documentation avec Images
 
 Une documentation complète avec captures d'écran est disponible dans le fichier `DOCUMENTATION_AVEC_IMAGES.md`.
 
@@ -282,3 +282,164 @@ Une documentation complète avec captures d'écran est disponible dans le fichie
 
 ### Documentation Complète
 Consultez `DOCUMENTATION_AVEC_IMAGES.md` pour une documentation détaillée avec captures d'écran de chaque étape.
+
+## Configuration Jenkins avec Docker Compose
+
+### Installation et Démarrage de Jenkins
+
+#### 1. Créer le fichier docker-compose.yml
+```yaml
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+```
+
+#### 2. Démarrer Jenkins
+```bash
+# Arrêter Jenkins s'il existe
+docker stop jenkins 2>/dev/null || true
+docker rm jenkins 2>/dev/null || true
+
+# Démarrer avec Docker Compose
+docker-compose up -d
+
+# Vérifier le statut
+docker-compose ps
+
+# Voir les logs
+docker-compose logs jenkins
+```
+
+#### 3. Accéder à Jenkins
+- **URL** : `http://localhost:8080`
+- **Configuration** : Jenkins est prêt sans setup wizard
+- **Plugins** : Installer manuellement les plugins nécessaires
+
+### Configuration des Plugins
+
+#### Plugins Requis
+1. **Pipeline** - Pour les pipelines déclaratifs
+2. **Git plugin** - Intégration Git
+3. **NodeJS plugin** - Support Node.js
+4. **Email Extension plugin** - Notifications
+5. **Workspace Cleanup plugin** - Nettoyage
+6. **Build Timeout plugin** - Gestion des timeouts
+
+#### Installation des Plugins
+1. Aller dans `Manage Jenkins > Manage Plugins`
+2. Rechercher et installer chaque plugin
+3. Redémarrer Jenkins si nécessaire
+
+### Configuration Globale
+
+#### Node.js Configuration
+1. Aller dans `Manage Jenkins > Global Tool Configuration`
+2. **Node.js** :
+   - **Name** : `NodeJS-18`
+   - **Version** : `18.x.x`
+   - **Installation automatique** : ✅ Coché
+
+#### Git Configuration
+- Vérifier que Git est configuré (généralement automatique)
+
+### Création du Job Pipeline
+
+#### Nouveau Job
+1. **Dashboard** → **"New Item"**
+2. **Nom** : `mon-app-js-pipeline`
+3. **Type** : `Pipeline`
+4. **OK**
+
+#### Configuration du Pipeline
+1. **Definition** : `Pipeline script from SCM`
+2. **SCM** : `Git`
+3. **Repository URL** : `https://github.com/LucasBalza/ci-cd.git`
+4. **Branch Specifier** : `*/main`
+5. **Script Path** : `Jenkinsfile`
+
+#### Configuration des Triggers
+1. **Build Triggers** : `GitHub hook trigger for GITScm polling`
+2. **Poll SCM** : `H/5 * * * *` (toutes les 5 minutes)
+
+### Gestion des Conteneurs
+
+#### Commandes Utiles
+```bash
+# Démarrer Jenkins
+docker-compose up -d
+
+# Arrêter Jenkins
+docker-compose down
+
+# Voir les logs
+docker-compose logs jenkins
+
+# Redémarrer Jenkins
+docker-compose restart
+
+# Vérifier le statut
+docker-compose ps
+```
+
+#### Nettoyage
+```bash
+# Arrêter et supprimer les conteneurs
+docker-compose down
+
+# Supprimer les volumes (ATTENTION: supprime les données)
+docker-compose down -v
+
+# Nettoyer complètement
+docker-compose down -v --rmi all
+```
+
+### Dépannage
+
+#### Problèmes Courants
+1. **Port 8080 occupé** : Changer le port dans docker-compose.yml
+2. **Permissions Docker** : Vérifier que Docker Desktop fonctionne
+3. **Plugins manquants** : Installer les plugins requis
+4. **Node.js non trouvé** : Configurer Node.js dans Global Tool Configuration
+
+#### Logs de Debug
+```bash
+# Voir les logs Jenkins
+docker-compose logs jenkins
+
+# Voir les logs en temps réel
+docker-compose logs -f jenkins
+
+# Accéder au conteneur
+docker-compose exec jenkins bash
+```
+
+### URLs d'Accès
+
+- **Jenkins** : http://localhost:8080
+- **Application Staging** : http://localhost:3001
+- **Application Production** : http://localhost:3000
+
+### Résumé des Étapes
+
+1. ✅ **Créer docker-compose.yml**
+2. ✅ **Démarrer Jenkins** : `docker-compose up -d`
+3. ✅ **Accéder à Jenkins** : http://localhost:8080
+4. ✅ **Installer les plugins** requis
+5. ✅ **Configurer Node.js** dans Global Tool Configuration
+6. ✅ **Créer le job pipeline** avec ton repository Git
+7. ✅ **Lancer le premier build**
+
+Cette configuration permet d'avoir Jenkins opérationnel rapidement avec Docker Compose, évitant les problèmes de permissions Docker sur Windows.

@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS-18'
+    }
+
     environment {
         APP_NAME           = 'mon-app-js'
         IMAGE_NAME         = 'mon-app-js-image'
@@ -8,6 +12,7 @@ pipeline {
         PROD_CONTAINER     = 'mon-app-js-production'
         STAGING_PORT       = '3001'
         PROD_PORT          = '3000'
+        DOCKER_HOST        = 'tcp://host.docker.internal:2375'
     }
 
     stages {

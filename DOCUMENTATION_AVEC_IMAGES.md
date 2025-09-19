@@ -53,7 +53,8 @@ npm --version
 git --version
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 162236.png`
+**Image associée :** 
+
 ![Vérification des prérequis](image/README/Capture%20d'écran%202025-09-19%20164312.png)
 
 ---
@@ -66,7 +67,8 @@ git --version
 npm ci
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 162523.png`
+**Image associée :** 
+
 ![Installation des dépendances](image/README/Capture%20d'écran%202025-09-19%20164725.png)
 
 ---
@@ -79,7 +81,8 @@ npm ci
 npm test
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 162624.png`
+**Image associée :** 
+
 ![Tests unitaires](image/README/Capture%20d'écran%202025-09-19%20164443.png)
 
 ---
@@ -92,8 +95,9 @@ npm test
 npm run build
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 164842.png`
-![Build de l'application](image/README/Capture%20d'écran%202025-09-19%20163506.png)
+**Image associée :** 
+
+![Build de l'application](image/README/Capture%20d'écran%202025-09-19%20164842.png)
 
 ---
 
@@ -105,8 +109,9 @@ npm run build
 docker build -t mon-app-js-image .
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 163541.png`
-![Construction Docker](image/README/Capture%20d'écran%202025-09-19%20163541.png)
+**Image associée :** 
+
+![Construction Docker](image/README/Capture%20d'écran%202025-09-19%20164842.png)
 
 ---
 
@@ -121,8 +126,9 @@ docker run -d --name mon-app-js-staging -p 3001:3000 -e NODE_ENV=staging mon-app
 docker run -d --name mon-app-js-production -p 3000:3000 -e NODE_ENV=production mon-app-js-image
 ```
 
-**Image associée :** `image/README/Capture d'écran 2025-09-19 163555.png`
-![Déploiement des conteneurs](image/README/Capture%20d'écran%202025-09-19%20163555.png)
+**Image associée :** 
+
+![Déploiement des conteneurs](image/README/Capture%20d'écran%202025-09-19%20165248.png)
 
 ---
 
@@ -153,7 +159,9 @@ docker ps
 docker logs mon-app-js-staging
 docker logs mon-app-js-production
 ```
+**Image associée :** 
 
+![Déploiement des conteneurs](image/README/Capture%20d'écran%202025-09-19%20165358.png)
 ---
 
 ### 10.  Accès aux Applications
