@@ -7,8 +7,8 @@
     "start": "node server.js",
     "test": "jest --ci --reporters=default --reporters=jest-junit",
     "build": "npm run copy-files",
-    "copy-files": "if not exist dist mkdir dist && xcopy /E /I /Y mon-app-js\\src\\* dist\\ && copy mon-app-js\\src\\app.js dist\\index.js",
-    "clean": "rmdir /S /Q dist && rmdir /S /Q node_modules"
+    "copy-files": "mkdir -p dist && cp -r mon-app-js/src/* dist/ && cp mon-app-js/src/app.js dist/index.js",
+    "clean": "rm -rf dist && rm -rf node_modules"
   },
   "dependencies": {
     "express": "^4.18.0"
